@@ -64,6 +64,12 @@ h1 { margin:0 0 8px; font-size:clamp(19px,4.6vw,30px); font-weight:800; letter-s
 .search-wrap svg { position:absolute; left:14px; top:50%; transform:translateY(-50%); opacity:.45; pointer-events:none; }
 .pills { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
 .pill { border:1.5px solid var(--line); background:#fff; color:var(--ink-soft); padding:9px 15px; min-height:38px; border-radius:999px; font-size:13px; font-weight:600; cursor:pointer; transition:.15s; font-family:inherit; white-space:nowrap; }
+.cat-select { display:none; }
+@media (max-width:680px) {
+  .pills { display:none; }
+  .cat-select { display:block; width:100%; max-width:560px; margin:0 auto; min-height:44px; padding:10px 38px 10px 16px; border:1.5px solid var(--line); border-radius:12px; background:#fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%2314232b" stroke-width="2.4"><polyline points="6 9 12 15 18 9"/></svg>') no-repeat right 14px center; background-size:16px; color:var(--ink); font-size:14.5px; font-weight:600; font-family:inherit; -webkit-appearance:none; appearance:none; }
+  body.lang-ar .cat-select { background-position:left 14px center; }
+}
 .pill:hover { border-color:var(--pc,var(--amber)); color:var(--pc,var(--ink)); }
 .pill:active { transform:scale(0.96); }
 .pill.active { background:var(--pc,var(--amber)); border-color:var(--pc,var(--amber)); color:#fff; }
@@ -187,6 +193,7 @@ footer b { color:var(--ink); }
 
 
   </div>
+  <select class="cat-select" id="catSelect" aria-label="Category"></select>
   <div class="count-note" id="countNote"></div>
 </div>
 
@@ -17130,6 +17137,23 @@ dear guests, due to a technical reason we would have to change the aircraft. kin
 const cards = Array.from(document.querySelectorAll('.card'));
 const sectionsEls = Array.from(document.querySelectorAll('.cat-section'));
 const pills = Array.from(document.querySelectorAll('.pill'));
+const catSelect = document.getElementById('catSelect');
+function syncCatSelectOptions() {
+  const prevValue = catSelect.value || activeCat || 'all';
+  catSelect.innerHTML = '';
+  pills.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.getAttribute('data-cat');
+    const label = p.querySelector(lang === 'ar' ? '.lang-ar-only' : '.lang-en-only');
+    opt.textContent = label ? label.textContent : p.textContent;
+    catSelect.appendChild(opt);
+  });
+  catSelect.value = prevValue;
+}
+catSelect.addEventListener('change', () => {
+  const matchingPill = pills.find(p => p.getAttribute('data-cat') === catSelect.value);
+  if (matchingPill) matchingPill.click();
+});
 const searchInput = document.getElementById('search');
 const empty = document.getElementById('empty');
 const countNote = document.getElementById('countNote');
@@ -17154,6 +17178,7 @@ function applyLanguage() {
   } else {
     searchInput.placeholder = narrow ? "Search topics..." : "Search e.g. 'TUC', 'LRBL', 'CPR ratio', 'door armed'...";
   }
+  syncCatSelectOptions();
   applyFilters();
 }
 
@@ -17190,6 +17215,7 @@ pills.forEach(p => {
     pills.forEach(x => x.classList.remove('active'));
     p.classList.add('active');
     activeCat = p.getAttribute('data-cat');
+    catSelect.value = activeCat;
     applyFilters();
   });
 });
