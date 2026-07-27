@@ -11076,6 +11076,31 @@ function resetCardVisual(card) {
   card.querySelector('.explain').style.display = 'none';
 }
 
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+const OPT_LETTERS = ['A', 'B', 'C', 'D'];
+function shuffleCardOptions(card) {
+  const optsContainer = card.querySelector('.opts');
+  const opts = shuffle(Array.from(optsContainer.children));
+  opts.forEach((opt, i) => {
+    opt.querySelector('.opt-letter').textContent = OPT_LETTERS[i];
+    optsContainer.appendChild(opt);
+  });
+}
+
+function shuffleSessionOrder() {
+  document.querySelectorAll('.qcards').forEach(container => {
+    const cards = shuffle(Array.from(container.children));
+    cards.forEach(c => container.appendChild(c));
+  });
+}
+
 function startExamSession() {
   answered = {};
   sessionIndices = [];
@@ -11084,7 +11109,9 @@ function startExamSession() {
     const cat = c.getAttribute('data-cat');
     if (selectedCats.has(cat)) sessionIndices.push(qi);
     resetCardVisual(c);
+    shuffleCardOptions(c);
   });
+  shuffleSessionOrder();
   SESSION_TOTAL = sessionIndices.length;
 
   pills.forEach(p => {
