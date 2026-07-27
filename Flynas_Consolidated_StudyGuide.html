@@ -17390,14 +17390,17 @@ const cards = Array.from(document.querySelectorAll('.card'));
 const sectionsEls = Array.from(document.querySelectorAll('.cat-section'));
 const pills = Array.from(document.querySelectorAll('.pill'));
 const catSelect = document.getElementById('catSelect');
+const CHAPTER_NUM = { org: 1, hlt: 2, fa: 3, dg: 4, sop: 5, announcements: 6, eqp: 7, sec: 8, emr: 9, sar: 10, a320: 11, sms: 12, crm: 13, a330: 14 };
 function syncCatSelectOptions() {
   const prevValue = catSelect.value || activeCat || 'all';
   catSelect.innerHTML = '';
   pills.forEach(p => {
+    const cat = p.getAttribute('data-cat');
     const opt = document.createElement('option');
-    opt.value = p.getAttribute('data-cat');
+    opt.value = cat;
     const label = p.querySelector(lang === 'ar' ? '.lang-ar-only' : '.lang-en-only');
-    opt.textContent = label ? label.textContent : p.textContent;
+    const text = label ? label.textContent : p.textContent;
+    opt.textContent = CHAPTER_NUM[cat] ? (CHAPTER_NUM[cat] + '. ' + text) : text;
     catSelect.appendChild(opt);
   });
   catSelect.value = prevValue;
